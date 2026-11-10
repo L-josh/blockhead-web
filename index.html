@@ -38,7 +38,7 @@ body {
 }
 
 #status {
-	background-color: #242424;
+	background-color: #141623;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -92,7 +92,7 @@ body {
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-
+<style>body{background-color:#141623}#status-progress{-webkit-appearance:none;appearance:none;box-sizing:border-box;top:calc(50% - 12px);bottom:auto;width:min(320px,70vw);height:24px;border:4px solid #2a2f47;background:#0f1220}#status-progress::-webkit-progress-bar{background:#0f1220}#status-progress::-webkit-progress-value{background:#ffd75e}#status-progress::-moz-progress-bar{background:#ffd75e}#status-progress:indeterminate::-moz-progress-bar{background:transparent}</style>
 	</head>
 	<body>
 		<canvas id="canvas">
@@ -104,34 +104,39 @@ body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
+			<img id="status-splash" class="show-image--false fullsize--true use-filter--true" src="index.png" alt="">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script>
-// index.wasm is over Cloudflare's 25 MiB file limit, so it ships gzipped and is unpacked here.
+// The engine and game data ship gzipped (see tools/deploy_web.py) and are unpacked here.
 (function () {
 	const realFetch = window.fetch.bind(window);
+	const packed = {
+		'index.wasm': { file: 'index.wasm.gz', type: 'application/wasm' },
+		'index.pck': { file: 'index.gz.pck', type: 'application/octet-stream' },
+	};
 	window.fetch = function (input, init) {
-		if (typeof input === 'string' && input.split('?')[0].endsWith('index.wasm')) {
-			return realFetch('index.wasm.gz', init).then(function (response) {
-				if (!response.ok) {
-					return response;
-				}
-				return new Response(response.body.pipeThrough(new DecompressionStream('gzip')), {
-					status: 200,
-					headers: { 'Content-Type': 'application/wasm' },
-				});
-			});
+		const found = typeof input === 'string' ? packed[input.split('?')[0].split('/').pop()] : undefined;
+		if (!found) {
+			return realFetch(input, init);
 		}
-		return realFetch(input, init);
+		return realFetch(found.file, init).then(function (response) {
+			if (!response.ok) {
+				return response;
+			}
+			return new Response(response.body.pipeThrough(new DecompressionStream('gzip')), {
+				status: 200,
+				headers: { 'Content-Type': found.type },
+			});
+		});
 	};
 }());
 </script>
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":6091528,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":4697876,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
