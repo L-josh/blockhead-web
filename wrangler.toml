@@ -1,0 +1,11 @@
+# Settings for the Cloudflare Pages project that serves blockhe.ad. Published with the rest of
+# web/, and Pages reads it on every deployment: this file, not the dashboard, sets the bindings.
+name = "blockhead-web"
+pages_build_output_dir = "."
+compatibility_date = "2026-11-09"
+
+# The hiscore board's database (docs/hiscore.md).
+[[d1_databases]]
+binding = "DB"
+database_name = "blockhead-scores"
+database_id = "ce29ba68-23f5-4a6d-b3fc-1a3cb858c5dc"
